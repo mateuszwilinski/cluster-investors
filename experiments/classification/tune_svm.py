@@ -17,17 +17,6 @@ parser.add_argument('-params', default='svm_linear_grid.json', dest='params', ty
 
 args = parser.parse_args()
 
-def test_svm(x_train, y_train, x_test, y_test, args):
-    # Fit the model
-    svc = SVC(**args)
-    svc.fit(x_train, y_train)
-
-    # Predict
-    y_train_pred = svc.predict(x_train)
-    y_test_pred = svc.predict(x_test)
-
-    return accuracy_score(y_train, y_train_pred), accuracy_score(y_test, y_test_pred)
-
 def load_and_preprocess_data(experiment, selected_features):
     # Load data
     x_train = np.loadtxt("../../data/x_train_" + str(experiment) + ".csv")
@@ -45,6 +34,17 @@ def load_and_preprocess_data(experiment, selected_features):
     x_validation = scaler.transform(x_validation)
 
     return x_train, y_train, x_validation, y_validation
+
+def test_svm(x_train, y_train, x_test, y_test, args):
+    # Fit the model
+    svc = SVC(**args)
+    svc.fit(x_train, y_train)
+
+    # Predict
+    y_train_pred = svc.predict(x_train)
+    y_test_pred = svc.predict(x_test)
+
+    return accuracy_score(y_train, y_train_pred), accuracy_score(y_test, y_test_pred)
 
 def grid_search(x_train, y_train, x_test, y_test, parameters):
     best_score = 0
