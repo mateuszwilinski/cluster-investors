@@ -167,7 +167,7 @@ if __name__ == "__main__":
         y_train,
         x_test,
         params,
-        return_model=args.plot_explanation
+        return_model=True
         )
     print("Train accuracy:", accuracy_score(y_train, y_train_pred))
     print("Test accuracy:", accuracy_score(y_test, y_test_pred))
@@ -185,7 +185,6 @@ if __name__ == "__main__":
         report = classification_report(
             y_test,
             y_test_pred,
-            target_names=agents,
             output_dict=True
             )
         print_classification_report(report, n_classes)
