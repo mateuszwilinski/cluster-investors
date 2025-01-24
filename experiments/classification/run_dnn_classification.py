@@ -18,7 +18,7 @@ py.rcParams["mathtext.fontset"] = "cm"
 py.rcParams['pdf.fonttype'] = 42
 py.rcParams['ps.fonttype'] = 42
 
-parser = argparse.ArgumentParser(description="SVM classification")
+parser = argparse.ArgumentParser(description="DNN classification")
 
 parser.add_argument('-experiment', default=1, dest='experiment', type=int)
 parser.add_argument('-n_features', default=18, dest='n_features', type=int)
@@ -38,13 +38,13 @@ args = parser.parse_args()
 features = ["buy ratio", "market orders ratio", "mean order size",
             "std of order size", "mean order creation times", "std order creation times",
             "cancellation ratio", "no trades", "traded volume",
-            "short_trend", "short_dir_trend", "trend", "dir_trend", "long_trend", "long_dir_trend",
-            "profit", "long_profit", "weight_profit"]
+            "short trend", "short dir trend", "trend", "dir trend", "long trend", "long dir trend",
+            "profit", "long profit", "weight profit"]
 
 agents = ["market_maker(1)", "market_maker(2)", "market_maker(3)",
           "market_taker(1)", "market_taker(2)", "market_taker(3)",
           "fundamentalist(1)", "fundamentalist(2)", "fundamentalist(3)", "fundamentalist(4)",
-          "chartist(1)", "chartist(2)", "chartist(3)", "chartist(4)", "noise_trader(1)"]
+          "chartist(1)", "chartist(2)", "chartist(3)", "chartist(4)", "noise trader(1)"]
 
 class NeuralNetwork(nn.Module):
     def __init__(self, l0=18, l1=256, l2=1024, l3=1024, ln=15, dropout=0.2):
@@ -176,17 +176,80 @@ def predict_nn(x_train, y_train, x_test, y_test, args, return_model=True):
     else:
         return y_train_pred, y_test_pred
 
-def explain_svm(svc, selected_features, n_classes):
-    coefs = np.zeros((n_classes, n_classes, len(selected_features)))
+def relu_lrp(relevance):
+    """
+    Layer-wise Relevance Propagation for ReLU.
+    """
+    relevance = relevance * (relevance > 0).float()  # Only keep positive relevance
+    return relevance
 
-    temp = (np.abs(svc.coef_).T / np.abs(svc.coef_).sum(1))
-    k = 0
-    for i in range(np.max(y_train)+1):
-        for j in range(i+1, np.max(y_train)+1):
-            coefs[i, j, :] = temp[:, k]
-            k += 1
+def linear_lrp(layer, a, r):
+    """
+    Layer-wise Relevance Propagation for a linear layer.
+    """
+    eps = 1.0e-08
+    z = layer.forward(a) + eps
+    s = r / z
+    c = torch.mm(s, layer.weight)
+    r = (a * c).data
+    return r
 
-    return coefs
+def lrp(model, x, target_class=None):
+    """
+    Performs Layer-Wise Relevance Propagation (LRP) on the model for a given input.
+    """
+    # Forward pass through the model to get the logits
+    model.eval()
+    logits = model(x)
+
+    # If target_class is None, take the highest scoring class
+    if target_class is None:
+        target_class = logits.argmax(dim=-1)
+
+    # Initialize the relevance with the output for the target class
+    relevance = torch.zeros_like(logits)
+    relevance[:, target_class] = logits[:, target_class]
+
+    # Perform the forward pass again, storing inputs of each layer
+    layer_inputs = [x]
+    for layer in model.linear_relu_stack[:-1]:
+        layer_inputs.append(layer(layer_inputs[-1]))
+
+    # Backward pass for relevance propagation through layers in reverse order
+    for i, layer in enumerate(reversed(model.linear_relu_stack)):
+        if isinstance(layer, nn.Linear):
+            # The input for this layer is stored in layer_inputs
+            relevance = linear_lrp(layer, layer_inputs[-(i+1)], relevance)
+        elif isinstance(layer, nn.ReLU):
+            relevance = relu_lrp(relevance)
+        elif isinstance(layer, nn.Dropout):
+            # Dropout layers don’t participate in relevance propagation, just skip them
+            pass
+
+    return relevance
+
+def explain_nn(model, x_train_tensor, y_train, selected_features):
+    # Use GPU if available
+    device = (
+        "cuda"
+        if torch.cuda.is_available()
+        else "mps"
+        if torch.backends.mps.is_available()
+        else "cpu"
+    )
+    print(f"Using {device} device")
+
+    relevance = []
+    for agent in range(model.layers[-1].out_features):
+        ids = (y_train == agent)
+        xs = x_train_tensor[ids]
+        rs = np.zeros((len(xs), len(selected_features)))
+        with torch.no_grad():
+            for i, x in enumerate(xs):
+                x = x.unsqueeze(0).to(device)
+                rs[i, :] = lrp(model, x, target_class=None).cpu().numpy()
+        relevance.append(rs)
+    return relevance
 
 def plot_confusion_matrix(cm, experiment, n_features):
     py.figure(figsize=(5, 4))
@@ -231,21 +294,67 @@ def print_classification_report(report, n_classes):
                 f'{report[k]["f1-score"]:.2f}', "&",
                 f'{report[k]["support"]:.0f}', "\\\\")
 
-def plot_explanation(selected_features, coefs, experiment):
-    i_max = len(selected_features) // 3
+def plot_explanation(selected_features, results, experiment):
+    if experiment == 3:
+        subsets = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8, 9],
+            [10, 13],
+            [11, 12],
+            [14]]
+        titles = [
+            "Market Makers",
+            "Market Takers",
+            "Fundamentalists",
+            "Chartists",
+            "Chartists",
+            "Noise Traders"
+            ]
+    else:
+        subsets = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7],
+            [8, 9],
+            [10, 13],
+            [11, 12]]
+        titles = [
+            "Market Makers",
+            "Market Takers",
+            "Fundamentalists",
+            "Fundamentalists",
+            "Chartists",
+            "Chartists"
+            ]
+    vp = []
+    i_max = 2
 
-    fig, axs = py.subplots(i_max, 3, figsize=(10, 3 * i_max))
-    axs[0, 0].imshow(coefs[:, :, 0], cmap='Blues', vmin=0.0, vmax=1.0)
-
+    fig, axs = py.subplots(2, 3, figsize=(10, 6))
     for i in range(i_max):
         for j in range(3):
-            axs[i, j].set_title(features[i + i_max*j])
-            axs[i, j].imshow(coefs[:, :, i + i_max*j], cmap='Blues', vmin=0.0, vmax=1.0)
-            axs[i, j].set_xticks([])
-            axs[i, j].set_yticks([])
-
+            vp = []
+            subset = subsets[i + j*i_max]
+            axs[i, j].set_title(titles[i + j*i_max], fontsize=10)
+            axs[i, j].axhline(0, color="black", ls="--", lw=0.5)
+            for k in subset:
+                rs = results[k]
+                vp.append(axs[i, j].violinplot(rs))
+            if i == i_max-1:
+                axs[i, j].set_xticks(
+                    np.arange(1, len(selected_features)+1),
+                    [features[i] for i in selected_features],
+                    rotation=90
+                    )
+            else:
+                axs[i, j].set_xticks([])
+            axs[i, j].legend(
+                [vp[a]["bodies"][0] for a in range(len(subset))],
+                [agents[a][-3:] for a in subset],
+                fontsize=8
+                )
     py.tight_layout()
-    py.savefig("../../plots/explanation/svm_explain_" +
+    py.savefig("../plots/explanation/dnn_explain_" +
                str(experiment) + "_" +
                str(len(selected_features)) + ".pdf")
 
@@ -287,7 +396,7 @@ if __name__ == "__main__":
             )
         print_classification_report(report, n_classes)
 
-    # if args.plot_explanation:
-    #     # Explanation
-    #     coefs = explain_svm(svc, selected_features, n_classes)
-    #     plot_explanation(selected_features, coefs, args.experiment)
+    if args.plot_explanation:
+        # Explanation
+        relevance = explain_nn(model, x_train, y_train, selected_features)
+        plot_explanation(selected_features, relevance, args.experiment)
