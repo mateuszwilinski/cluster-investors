@@ -212,11 +212,11 @@ def lrp(model, x, target_class=None):
 
     # Perform the forward pass again, storing inputs of each layer
     layer_inputs = [x]
-    for layer in model.linear_relu_stack[:-1]:
+    for layer in model.layers[:-1]:
         layer_inputs.append(layer(layer_inputs[-1]))
 
     # Backward pass for relevance propagation through layers in reverse order
-    for i, layer in enumerate(reversed(model.linear_relu_stack)):
+    for i, layer in enumerate(reversed(model.layers)):
         if isinstance(layer, nn.Linear):
             # The input for this layer is stored in layer_inputs
             relevance = linear_lrp(layer, layer_inputs[-(i+1)], relevance)
@@ -299,22 +299,6 @@ def plot_explanation(selected_features, results, experiment):
         subsets = [
             [0, 1, 2],
             [3, 4, 5],
-            [6, 7, 8, 9],
-            [10, 13],
-            [11, 12],
-            [14]]
-        titles = [
-            "Market Makers",
-            "Market Takers",
-            "Fundamentalists",
-            "Chartists",
-            "Chartists",
-            "Noise Traders"
-            ]
-    else:
-        subsets = [
-            [0, 1, 2],
-            [3, 4, 5],
             [6, 7],
             [8, 9],
             [10, 13],
@@ -326,6 +310,22 @@ def plot_explanation(selected_features, results, experiment):
             "Fundamentalists",
             "Chartists",
             "Chartists"
+            ]
+    else:
+        subsets = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8, 9],
+            [10, 13],
+            [11, 12],
+            [14]]
+        titles = [
+            "Market Makers",
+            "Market Takers",
+            "Fundamentalists",
+            "Chartists",
+            "Chartists",
+            "Noise Traders"
             ]
     vp = []
     i_max = 2
@@ -354,7 +354,7 @@ def plot_explanation(selected_features, results, experiment):
                 fontsize=8
                 )
     py.tight_layout()
-    py.savefig("../plots/explanation/dnn_explain_" +
+    py.savefig("../../plots/explanation/dnn_explain_" +
                str(experiment) + "_" +
                str(len(selected_features)) + ".pdf")
 
