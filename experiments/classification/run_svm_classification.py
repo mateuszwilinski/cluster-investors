@@ -39,13 +39,13 @@ params = {
 features = ["buy ratio", "market orders ratio", "mean order size",
             "std of order size", "mean order creation times", "std order creation times",
             "cancellation ratio", "no trades", "traded volume",
-            "short_trend", "short_dir_trend", "trend", "dir_trend", "long_trend", "long_dir_trend",
-            "profit", "long_profit", "weight_profit"]
+            "short trend", "short dir trend", "trend", "dir trend", "long trend", "long dir trend",
+            "profit", "long profit", "weight profit"]
 
 agents = ["market_maker(1)", "market_maker(2)", "market_maker(3)",
           "market_taker(1)", "market_taker(2)", "market_taker(3)",
           "fundamentalist(1)", "fundamentalist(2)", "fundamentalist(3)", "fundamentalist(4)",
-          "chartist(1)", "chartist(2)", "chartist(3)", "chartist(4)", "noise_trader(1)"]
+          "chartist(1)", "chartist(2)", "chartist(3)", "chartist(4)", "noise trader(1)"]
 
 def load_and_preprocess_data(experiment, selected_features):
     # Load data
