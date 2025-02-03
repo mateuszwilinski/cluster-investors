@@ -146,6 +146,32 @@ def plot_explanation(selected_features, coefs, experiment):
             axs[i, j].imshow(coefs[:, :, i + i_max*j], cmap='Blues', vmin=0.0, vmax=1.0)
             axs[i, j].set_xticks([])
             axs[i, j].set_yticks([])
+            # fundamentalists
+            axs[i, j].vlines(5.5, ymin=5.5, ymax=9.5, color="gray", ls="--", lw=1)
+            axs[i, j].vlines(9.5, ymin=5.5, ymax=9.5, color="gray", ls="--", lw=1)
+            axs[i, j].hlines(5.5, xmin=5.5, xmax=9.5, color="gray", ls="--", lw=1)
+            axs[i, j].hlines(9.5, xmin=5.5, xmax=9.5, color="gray", ls="--", lw=1)
+            # chartsits
+            axs[i, j].vlines(13.5, ymin=9.5, ymax=13.5, color="gray", ls="--", lw=1)
+            axs[i, j].vlines(9.5, ymin=9.5, ymax=13.5, color="gray", ls="--", lw=1)
+            axs[i, j].hlines(13.5, xmin=9.5, xmax=13.5, color="gray", ls="--", lw=1)
+            axs[i, j].hlines(9.5, xmin=9.5, xmax=13.5, color="gray", ls="--", lw=1)
+            # market makers
+            axs[i, j].vlines(-0.5, ymin=-0.5, ymax=2.5, color="gray", ls="--", lw=1)
+            axs[i, j].vlines(2.5, ymin=-0.5, ymax=2.5, color="gray", ls="--", lw=1)
+            axs[i, j].hlines(-0.5, xmin=-0.5, xmax=2.5, color="gray", ls="--", lw=1)
+            axs[i, j].hlines(2.5, xmin=-0.5, xmax=2.5, color="gray", ls="--", lw=1)
+            # market takers
+            axs[i, j].vlines(2.5, ymin=2.5, ymax=5.5, color="gray", ls="--", lw=1)
+            axs[i, j].vlines(5.5, ymin=2.5, ymax=5.5, color="gray", ls="--", lw=1)
+            axs[i, j].hlines(2.5, xmin=2.5, xmax=5.5, color="gray", ls="--", lw=1)
+            axs[i, j].hlines(5.5, xmin=2.5, xmax=5.5, color="gray", ls="--", lw=1)
+            # noise traders
+            if experiment != 3:
+                axs[i, j].vlines(14.5, ymin=13.5, ymax=14.5, color="gray", ls="--", lw=1)
+                axs[i, j].vlines(13.5, ymin=13.5, ymax=14.5, color="gray", ls="--", lw=1)
+                axs[i, j].hlines(13.5, xmin=13.5, xmax=14.5, color="gray", ls="--", lw=1)
+                axs[i, j].hlines(14.5, xmin=13.5, xmax=14.5, color="gray", ls="--", lw=1)
 
     py.tight_layout()
     py.savefig("../../plots/explanation/svm_explain_" +
