@@ -170,6 +170,10 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
+# MacOS
+.DS_Store
+
 # Local folders
 data/
 plots/
+notebooks/
