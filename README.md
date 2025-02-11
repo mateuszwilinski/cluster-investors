@@ -10,7 +10,7 @@ This project aims to classify and cluster different types of trading agents usin
 }
 ```
 
-If you find this repository useful, please find the above article.
+If you find this repository useful, please cite the above article.
 
 ## Project Structure
 
