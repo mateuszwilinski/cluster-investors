@@ -125,6 +125,9 @@ def test(dataloader, model, loss_fn, device):
     print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
 
 def predict_nn(x_train, y_train, x_test, y_test, args, return_model=True):
+    """
+    Layer-wise Relevance Propagation for ReLU.
+    """
     # Use GPU if available
     device = (
         "cuda"
