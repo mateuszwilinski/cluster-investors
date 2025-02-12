@@ -4,7 +4,7 @@
 This project aims to classify and cluster different types of trading agents using various machine learning techniques, including Deep Neural Networks (DNN) and Support Vector Machines (SVM). The agents are characterized by various features derived from their trading behavior. The project includes data preprocessing, model training, evaluation, and explanation of the model's predictions. The work is part of research published in the article:
 
 ```bibtex
-@article{wilinski2019detectability,
+@article{wilinski2025classifying,
   title={Classifying and Clustering Trading Agents},
   author={Wilinski, Mateusz and Goel, Anubha and Iosifidis, Alexandros and Kanniainen, Juho},
 }
