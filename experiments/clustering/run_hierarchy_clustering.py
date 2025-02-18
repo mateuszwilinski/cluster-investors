@@ -4,26 +4,17 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.metrics import pairwise_distances, silhouette_score
-from scipy.cluster.hierarchy import linkage, dendrogram, fcluster, cophenet
-from sklearn.cluster import KMeans
-from sklearn_extra.cluster import KMedoids
-from sklearn.metrics import calinski_harabasz_score, davies_bouldin_score
-from scipy.cluster.hierarchy import linkage, dendrogram, fcluster, cophenet
+from scipy.cluster.hierarchy import linkage, fcluster
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import pairwise_distances
 from scipy.spatial.distance import cdist
-from gapstat import gapstat
-from gapstat import gapstat_score
-from sklearn.cluster import AgglomerativeClustering
 from scipy.spatial.distance import pdist
-from sklearn.cluster import SpectralClustering
 from sklearn.preprocessing import MinMaxScaler
-from skstab import StadionEstimator
 from skstab.datasets import load_dataset
-from sklearn.cluster import KMeans
 from sklearn.metrics import classification_report
 from collections import defaultdict
+
 
 
 z=2   ### Data index (z=0,1 or 2) 
