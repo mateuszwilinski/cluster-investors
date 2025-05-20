@@ -93,16 +93,18 @@ def run_stability_analysis(method, data_scale, k_values, omega, runs):
                 self.affinity = affinity
                 self.random_state = random_state
                 self.eigen_tol = eigen_tol
+                self.labels_ = None
+                self.model = None
 
             def fit(self, X, **kwargs):
                 n_clusters = kwargs.get("n_clusters", 2)
-                model = SpectralClustering(
+                self.model = SpectralClustering(
                     n_clusters=n_clusters,
                     affinity=self.affinity,
                     random_state=self.random_state,
                     eigen_tol=self.eigen_tol
                 )
-                self.labels_ = model.fit_predict(X)
+                self.labels_ = self.model.fit_predict(X)
                 return self
 
             def predict(self, X):
