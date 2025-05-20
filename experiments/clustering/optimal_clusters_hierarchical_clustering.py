@@ -4,7 +4,6 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler
 from scipy.cluster.hierarchy import linkage, fcluster
 from sklearn.metrics import silhouette_score
-from scipy.spatial.distance import cdist
 import matplotlib.pyplot as plt
 from kneed import KneeLocator
 
