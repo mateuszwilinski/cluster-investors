@@ -76,8 +76,7 @@ def scale_data(data):
 # ------------------- STABILITY ANALYSIS ------------------- #
 def run_stability_analysis(method, data_scale, k_values, omega, runs):
     X = data_scale.values
-    crossing = True  # default unless overridden
-
+    crossing = False
     # ---------------- Standard methods ---------------- #
     if method == "kmeans":
         algorithm = KMeans
@@ -112,7 +111,6 @@ def run_stability_analysis(method, data_scale, k_values, omega, runs):
 
         algorithm = lambda **kwargs: SpectralClusteringWrapper()
         algo_kwargs = {}
-        crossing = False
 
     elif method == "kernel_kmeans":
         class KernelKMeansWrapper:
@@ -130,7 +128,6 @@ def run_stability_analysis(method, data_scale, k_values, omega, runs):
 
         algorithm = lambda **kwargs: KernelKMeansWrapper(kernel="rbf", random_state=42)
         algo_kwargs = {}
-        crossing = False
 
     elif method == "hierarchical":
         class HierarchicalClusteringWrapper:
@@ -158,7 +155,6 @@ def run_stability_analysis(method, data_scale, k_values, omega, runs):
             algo_kwargs={},
             n_jobs=-1
         )
-        crossing = False
 
     else:
         raise ValueError(f"Unknown method: {method}")
