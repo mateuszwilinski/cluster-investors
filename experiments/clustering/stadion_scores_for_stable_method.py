@@ -29,7 +29,7 @@ RUNS = 20
 K_VALUES = list(range(1, 17))
 OMEGA = list(range(2, 6))
 
-METHOD = "hierarchical"  # Options: kmeans, kmedoids, hierarchical, spectral, kernel_kmeans
+METHOD = "kmeans"  # Options: kmeans, kmedoids, hierarchical, spectral, kernel_kmeans
 
 # ------------------- DATA LOADING ------------------- #
 def load_csv_file(name, index):
