@@ -144,36 +144,25 @@ def run_stability_analysis(method, data_scale, k_values, omega, runs):
             def predict(self, X):
                 return self.labels_
 
-        estimator = StadionEstimator(
-            X=X,
-            algorithm=lambda **kwargs: HierarchicalClusteringWrapper(),
-            param_name="n_clusters",
-            param_values=k_values,
-            omega=omega,
-            perturbation="uniform",
-            runs=runs,
-            algo_kwargs={},
-            n_jobs=-1
-        )
-
+        algorithm = lambda **kwargs: HierarchicalClusteringWrapper()
+        algo_kwargs = {}
     else:
         raise ValueError(f"Unknown method: {method}")
 
     # ---------------- Construct estimator for all except hierarchical ---------------- #
-    if method != "hierarchical":
-        estimator = StadionEstimator(
-            X=X,
-            algorithm=algorithm,
-            param_name="n_clusters",
-            param_values=k_values,
-            omega=omega,
-            perturbation="uniform",
-            perturbation_kwargs="auto",
-            runs=runs,
-            algo_kwargs=algo_kwargs,
-            extended=True,
-            n_jobs=-1
-        )
+    estimator = StadionEstimator(
+        X=X,
+        algorithm=algorithm,
+        param_name="n_clusters",
+        param_values=k_values,
+        omega=omega,
+        perturbation="uniform",
+        perturbation_kwargs="auto",
+        runs=runs,
+        algo_kwargs=algo_kwargs,
+        extended=True,
+        n_jobs=-1
+    )
 
     # ---------------- Evaluate ---------------- #
     try:
