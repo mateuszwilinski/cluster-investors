@@ -1,5 +1,4 @@
 
-import pylab as py
 import numpy as np
 import itertools as it
 import argparse

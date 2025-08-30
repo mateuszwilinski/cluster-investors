@@ -1,6 +1,5 @@
 
 import numpy as np
-import scipy.stats as stats
 import argparse
 import os
 import tempfile
@@ -10,7 +9,6 @@ from sklearn.preprocessing import StandardScaler
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import TensorDataset
 
@@ -74,8 +72,8 @@ def load_data(path, experiment, n_features):
     y_validation_tensor = torch.tensor(y_validation, dtype=torch.long)
 
     # Create a TensorDataset
-    train_set = torch.utils.data.TensorDataset(x_train_tensor, y_train_tensor)
-    validation_set = torch.utils.data.TensorDataset(x_validation_tensor, y_validation_tensor)
+    train_set = TensorDataset(x_train_tensor, y_train_tensor)
+    validation_set = TensorDataset(x_validation_tensor, y_validation_tensor)
 
     return train_set, validation_set
 
@@ -99,7 +97,7 @@ def load_test_data(path, experiment, n_features):
     y_test_tensor = torch.tensor(y_test, dtype=torch.long)
 
     # Create a TensorDataset
-    test_set = torch.utils.data.TensorDataset(x_test_tensor, y_test_tensor)
+    test_set = TensorDataset(x_test_tensor, y_test_tensor)
 
     return test_set
 
